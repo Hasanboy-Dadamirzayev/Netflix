@@ -6,12 +6,23 @@ from .models import *
 from rest_framework.generics import get_object_or_404
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.decorators import action
+from .paginations import *
+from rest_framework.filters import SearchFilter, OrderingFilter
+from django_filters.rest_framework import DjangoFilterBackend
 
 
 class MovieViewSet(ModelViewSet):
     queryset = Movie.objects.all()
     serializer_class = MovieSerializer
 
+    pagination_class = MoviePagination
+
+    filter_backends = [SearchFilter, OrderingFilter, DjangoFilterBackend]
+    filterset_fields = ['genre', 'year', 'actors']
+
+
+    search_fields = ['name']
+    ordering_fields = ['name', 'year']
     def get_serializer_class(self):
         if self.action == "add_actor":
             return ActorSerializer
@@ -152,6 +163,8 @@ class SubscriptionRetrieveUpdateAPIView(APIView):
 class ReviewViewSet(MovieViewSet):
     queryset = Review.objects.all()
     serializer_class = ReviewSerializer
+
+    pagination_class = ReviewPagination
 
     def get_serializer_class(self):
         if self.action in ['list', 'retrieve']:
